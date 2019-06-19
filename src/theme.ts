@@ -2,9 +2,9 @@ import styled from "styled-components";
 import "./fonts/ibm-plex.css";
 
 export const CenteredVerticallyAndHorizontally = styled.div`
-    display: "flex";
-    alignitems: "center";
-    justifycontent: "center";
+    display: flex;
+    alignitems: center;
+    justifycontent: center;
 `;
 
 export const LargeHeader = styled.h1`
