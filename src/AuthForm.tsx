@@ -1,5 +1,6 @@
 import React from "react";
 import { createGlobalStyle } from "styled-components";
+import { LargeHeader } from "./theme";
 
 /**
  * Props
@@ -29,7 +30,7 @@ export default class AuthForm extends React.Component<AuthFormProps> {
         return (
             <React.Fragment>
                 <this.globalStyle />
-                <header>test</header>
+                <LargeHeader>{this.props.action}</LargeHeader>
             </React.Fragment>
         );
     }
