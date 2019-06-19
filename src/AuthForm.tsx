@@ -1,6 +1,6 @@
 import React from "react";
 import { createGlobalStyle } from "styled-components";
-import { LargeHeader } from "./theme";
+import { CenteredVerticallyAndHorizontally, LargeHeader } from "./theme";
 
 /**
  * Props
@@ -30,7 +30,9 @@ export default class AuthForm extends React.Component<AuthFormProps> {
         return (
             <React.Fragment>
                 <this.globalStyle />
-                <LargeHeader>{this.props.action}</LargeHeader>
+                <CenteredVerticallyAndHorizontally>
+                    <LargeHeader color="#FFFFFF">{this.props.action.charAt(0).toUpperCase() + this.props.action.slice(1)}</LargeHeader>
+                </CenteredVerticallyAndHorizontally>
             </React.Fragment>
         );
     }
