@@ -1,5 +1,4 @@
 import * as React from "react";
-import "./App.css";
 import { observer } from "mobx-react";
 import { Route, Switch, Redirect, withRouter, RouteComponentProps } from "react-router";
 import { cookieUtility } from "./cookieUtility";

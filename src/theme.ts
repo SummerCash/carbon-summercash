@@ -3,8 +3,8 @@ import "./fonts/ibm-plex.css";
 
 export const CenteredVerticallyAndHorizontally = styled.div`
     display: flex;
-    alignitems: center;
-    justifycontent: center;
+    justify-content: center;
+    align-items: center;
 `;
 
 export const LargeHeader = styled.h1`
