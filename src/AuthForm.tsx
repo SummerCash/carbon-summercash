@@ -2,7 +2,6 @@ import React from "react";
 import { createGlobalStyle } from "styled-components";
 import { CenteredVerticallyAndHorizontally, LargeHeader } from "./theme";
 import { Form, TextInput } from "carbon-components-react";
-import "carbon-components/css/carbon-components.css";
 
 /**
  * Props
