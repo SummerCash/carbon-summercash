@@ -1,8 +1,8 @@
-import React from "react";
-import { createGlobalStyle } from "styled-components";
-import { CenteredVerticallyAndHorizontally, LargeHeader, TextInput, Button } from "./theme";
-import { Form } from "carbon-components-react";
-import * as authUtility from "./authUtility";
+import React, { useState } from "react";
+import { CenteredVerticallyAndHorizontally, LargeHeader, GlobalStyle, TextInput, Button } from "./theme";
+import { Form, InlineNotification } from "carbon-components-react";
+import { Accounts } from "@summercash/summercash-wallet-ts";
+import { apiRoot } from "./config";
 
 /**
  * Props
@@ -12,45 +12,77 @@ interface AuthFormProps {
     callback: any;
 }
 
-export default class AuthForm extends React.Component<AuthFormProps> {
-    globalStyle = createGlobalStyle`
-        body > #root > div {
-            height: 100vh;
+/**
+ * A generic authentication form (may be for logging in or creating a new account).
+ * 
+ * @param props AuthForm initialization props.
+ */
+export const AuthForm: React.FunctionComponent<AuthFormProps> = props => {
+    const accounts = new Accounts(`${apiRoot}/api`); // Init API instance
+
+    const [action] = useState(props.action); // Action prop
+    const [username, setUsername] = useState(""); // Username form value
+    const [password, setPassword] = useState(""); // Password form value
+
+    const [toastNotification, setToastNotificationMessage] = useState({ type: "", title: "", message: "" }); // Notification
+
+    const handleChangeUsername = (event) => {
+        setUsername(event.target.value); // Set state
+    };
+
+    const handleChangePassword = (event) => {
+        setPassword(event.target.value); // Set state
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault(); // Prevent default
+
+        switch (action) {
+            case "login":
+                try {
+                    await accounts.authenticate(username, password);
+                } catch (exception) {
+                    setToastNotificationMessage(
+                        { type: "error", title: "An Error Occurred", message: exception.toString() }
+                    ); // Notification
+                }
+
+                break;// Break
+            case "signup":
+                try {
+                    accounts.newAccount(username, password); // Create new account
+                } catch (exception) {
+                    setToastNotificationMessage(
+                        { type: "error", title: "An Error Occurred", message: exception.toString() }
+                    ); // Notification
+                }
+
+                break; // Break
         }
-
-        body {
-            background-color: #000000;
-            color: #FFFFFF;
-        }
-    `;
-
-    constructor(props: AuthFormProps) {
-        super(props); // Call super
-
-        this.state = {
-            action: props.action, // Set action
-        }; // Set state
     }
 
-    public render() {
-        return (
-            <React.Fragment>
-                <this.globalStyle />
-                <CenteredVerticallyAndHorizontally>
-                    <div>
-                        <LargeHeader color="#FFFFFF" marginBottom="10%">
-                            {this.props.action.charAt(0).toUpperCase() + this.props.action.slice(1)}
-                        </LargeHeader>
-                        <Form onSubmit={authUtility.authUser}>
-                            <TextInput id="username" labelText="Username" color="#FFFFFF" />
-                            <TextInput type="password" id="password" labelText="Password" marginTop="10%" color="#FFFFFF" />
-                            <Button label="Submit" type="submit" marginTop="10%">
-                                Submit
-                            </Button>
-                        </Form>
-                    </div>
-                </CenteredVerticallyAndHorizontally>
-            </React.Fragment>
-        );
-    }
+    return (
+        <React.Fragment>
+            <GlobalStyle />
+            <CenteredVerticallyAndHorizontally>
+                <div style={{ width: "70%" }}>
+                    <LargeHeader color="#FFFFFF" marginBottom="10%">
+                        {action.charAt(0).toUpperCase() + action.slice(1)}
+                    </LargeHeader>
+                    <Form onSubmit={handleSubmit}>
+                        <TextInput id="username" labelText="Username" color="#FFFFFF" value={username} onChange={handleChangeUsername} />
+                        <TextInput id="password" labelText="Password" color="#FFFFFF" value={password} onChange={handleChangePassword} type="password" marginTop="10%" />
+                        <Button type="submit" marginTop="10%">
+                            Submit
+                        </Button>
+                    </Form>
+                    {(toastNotification.message !== "") ? (
+                        <InlineNotification kind={toastNotification.type} title={toastNotification.title} subtitle={toastNotification.message} />
+                    ) : null}
+                </div>
+            </CenteredVerticallyAndHorizontally>
+        </React.Fragment >
+    );
 }
+
+export default AuthForm;
