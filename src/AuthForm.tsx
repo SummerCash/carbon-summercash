@@ -66,13 +66,13 @@ export const AuthForm: React.FunctionComponent<AuthFormProps> = props => {
             <GlobalStyle />
             <CenteredVerticallyAndHorizontally>
                 <div style={{ width: "70%" }}>
-                    <LargeHeader color="#FFFFFF" marginBottom="10%">
+                    <LargeHeader color="#FFFFFF" marginBottom="6.5%">
                         {action.charAt(0).toUpperCase() + action.slice(1)}
                     </LargeHeader>
                     <Form onSubmit={handleSubmit}>
                         <TextInput id="username" labelText="Username" color="#FFFFFF" value={username} onChange={handleChangeUsername} />
-                        <TextInput id="password" labelText="Password" color="#FFFFFF" value={password} onChange={handleChangePassword} type="password" marginTop="10%" />
-                        <Button type="submit" marginTop="10%">
+                        <TextInput id="password" labelText="Password" color="#FFFFFF" value={password} onChange={handleChangePassword} type="password" marginTop="5%" />
+                        <Button type="submit" marginTop="5%">
                             Submit
                         </Button>
                     </Form>
