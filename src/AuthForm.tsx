@@ -36,12 +36,17 @@ export default class AuthForm extends React.Component<AuthFormProps> {
             <React.Fragment>
                 <this.globalStyle />
                 <CenteredVerticallyAndHorizontally>
-                    <LargeHeader color="#FFFFFF">
-                        {this.props.action.charAt(0).toUpperCase() + this.props.action.slice(1)}
-                    </LargeHeader>
-                    <Form>
-                        <TextInput />
-                    </Form>
+                    <div>
+                        <LargeHeader color="#FFFFFF" marginBottom="10%">
+                            {this.props.action.charAt(0).toUpperCase() + this.props.action.slice(1)}
+                        </LargeHeader>
+                        <Form>
+                            <TextInput />
+                        </Form>
+                        <Form>
+                            <TextInput />
+                        </Form>
+                    </div>
                 </CenteredVerticallyAndHorizontally>
             </React.Fragment>
         );
