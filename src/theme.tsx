@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import "./fonts/ibm-plex.css";
-import { string } from "prop-types";
+import { Form as CarbonForm } from "carbon-components-react";
 
 export const CenteredVerticallyAndHorizontally = styled.div<{
     margin?: string;
@@ -38,3 +38,17 @@ export const LargeHeader = styled.h1<{
     margin-left: ${props => props.marginLeft};
     margin-right: ${props => props.marginRight};
 `;
+
+/* BEGIN CUSTOMIZED CARBON COMPONENTS */
+
+export const Form = (
+    margin?: string,
+    marginTop?: string,
+    marginBottom?: string,
+    marginLeft?: string,
+    marginRight?: string,
+) => {
+    return <CarbonForm style={{ margin: margin }} />;
+};
+
+/* END CUSTOMIZED CARBON COMPONENTS */
