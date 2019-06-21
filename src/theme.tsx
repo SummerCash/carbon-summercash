@@ -1,8 +1,10 @@
-import React from "react";
+import React, { FunctionComponent } from "react";
 import styled from "styled-components";
 import "./fonts/ibm-plex.css";
-import { Form as CarbonForm } from "carbon-components-react";
+import "./theme.css";
+import { Form as CarbonForm, TextInput as CarbonTextInput, Button as CarbonButton } from "carbon-components-react";
 
+// eslint-disable-next-line
 export const CenteredVerticallyAndHorizontally = styled.div<{
     margin?: string;
     marginTop?: string;
@@ -21,6 +23,7 @@ export const CenteredVerticallyAndHorizontally = styled.div<{
     margin-right: ${props => props.marginRight};
 `;
 
+// eslint-disable-next-line
 export const LargeHeader = styled.h1<{
     margin?: string;
     marginTop?: string;
@@ -42,14 +45,55 @@ export const LargeHeader = styled.h1<{
 
 /* BEGIN CUSTOMIZED CARBON COMPONENTS */
 
-export const Form = (
-    margin?: string,
-    marginTop?: string,
-    marginBottom?: string,
-    marginLeft?: string,
-    marginRight?: string,
-) => {
-    return <CarbonForm style={{ margin: margin }} />;
+interface StandardProps {
+    margin?: string;
+    marginTop?: string;
+    marginBottom?: string;
+    marginLeft?: string;
+    marginRight?: string;
+    color?: string;
+}
+
+interface StandardFormElementProps {
+    id: string;
+    labelText: string;
+    type?: string;
+    margin?: string;
+    marginTop?: string;
+    marginBottom?: string;
+    marginLeft?: string;
+    marginRight?: string;
+    color?: string;
+}
+
+interface StandardButtonProps {
+    type: string;
+    label: string;
+    margin?: string;
+    marginTop?: string;
+    marginBottom?: string;
+    marginLeft?: string;
+    marginRight?: string;
+}
+
+export const Form: FunctionComponent<StandardProps> = ({ margin = "0%", marginTop = "0%", marginBottom = "0%", marginLeft = "0%", marginRight = "0%", color = "#FFFFFF" }) => {
+    return <CarbonForm style={{ margin: margin, marginTop: marginTop, marginBottom: marginBottom, marginLeft: marginLeft, marginRight: marginRight, color: color }} />;
+};
+
+export const TextInput: FunctionComponent<StandardFormElementProps> = ({ type = "", id = "", labelText = "", margin = "0%", marginTop = "0%", marginBottom = "0%", marginLeft = "0%", marginRight = "0%" }) => {
+    return (
+        <div style={{ margin: margin, marginTop: marginTop, marginBottom: marginBottom, marginLeft: marginLeft, marginRight: marginRight }}>
+            <CarbonTextInput type={type} id={id} labelText={labelText}/>
+        </div>
+    );
+};
+
+export const Button: FunctionComponent<StandardButtonProps> = ({ label = "", type = "", margin="0%", marginTop = "0%", marginBottom = "0%", marginLeft = "0%", marginRight = "0%" }) => {
+    return (
+        <CarbonButton type={type} style={{margin: margin, marginTop: marginTop, marginBottom: marginBottom, marginLeft: marginLeft, marginRight: marginRight}}>
+            {label}
+        </CarbonButton>
+    );
 };
 
 /* END CUSTOMIZED CARBON COMPONENTS */

@@ -1,7 +1,7 @@
 import React from "react";
 import { createGlobalStyle } from "styled-components";
-import { CenteredVerticallyAndHorizontally, LargeHeader } from "./theme";
-import { Form, TextInput } from "carbon-components-react";
+import { CenteredVerticallyAndHorizontally, LargeHeader, TextInput, Button } from "./theme";
+import { Form } from "carbon-components-react";
 
 /**
  * Props
@@ -41,10 +41,11 @@ export default class AuthForm extends React.Component<AuthFormProps> {
                             {this.props.action.charAt(0).toUpperCase() + this.props.action.slice(1)}
                         </LargeHeader>
                         <Form>
-                            <TextInput />
-                        </Form>
-                        <Form>
-                            <TextInput />
+                            <TextInput id="username" labelText="Username" color="#FFFFFF" />
+                            <TextInput type="password" id="password" labelText="Password" marginTop="10%" color="#FFFFFF" />
+                            <Button label="Submit" type="submit" marginTop="10%">
+                                Submit
+                            </Button>
                         </Form>
                     </div>
                 </CenteredVerticallyAndHorizontally>
