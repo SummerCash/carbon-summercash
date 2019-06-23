@@ -12,55 +12,92 @@ import AppSwitcher20 from "@carbon/icons-react/lib/app-switcher/20";
 import { GlobalStyle } from "./theme";
 import { RouteComponentProps, withRouter } from "react-router";
 import MediaQuery from "react-responsive";
-import { LineChart, Line } from "recharts";
-import ContainerDimensions from "react-container-dimensions";
 import { apiRoot } from "./config";
 import { Accounts } from "@summercash/summercash-wallet-ts";
 import * as Cookies from "es-cookie";
+import { Line } from "react-chartjs-2";
 
 import Splash from "./Splash";
 import AppSwitcher from "./AppSwitcher";
+
+const MakeGraphData = (balances: number[]): any => {
+    let template = {
+        labels: [] as string[],
+        datasets: [
+            {
+                label: "My First dataset",
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: "rgba(75,192,192,0.4)",
+                borderColor: "rgba(75,192,192,1)",
+                borderCapStyle: "butt",
+                borderDash: [],
+                borderDashOffset: 0.0,
+                borderJoinStyle: "miter",
+                pointBorderColor: "rgba(75,192,192,1)",
+                pointBackgroundColor: "#fff",
+                pointBorderWidth: 1,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                pointHoverBorderColor: "rgba(220,220,220,1)",
+                pointHoverBorderWidth: 2,
+                pointRadius: 1,
+                pointHitRadius: 10,
+                data: balances,
+            },
+        ],
+    }; // Initialize template
+
+    balances.forEach((balance, i) => {
+        template.labels.push(i.toString()); // Append iterator
+    });
+
+    return template; // Return edited template
+};
 
 export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => {
     const [shouldShowSwitcherPanel, setShouldShowSwitcherPanel] = useState(false); // Create switcher panel state
     const [toastNotification, setToastNotificationMessage] = useState({ type: "", title: "", message: "" }); // Notification
     const [hasLoaded, setHasLoaded] = useState(false); // Create has loaded state
+    const [transactionData, setTransactionData] = useState([] as number[]); // Create tx data state
 
     const accounts = new Accounts(`${apiRoot}/api`); // Init API instance
 
     let extraMarginLeft = "auto"; // Init extra margin buffer
 
-    let transactionData; // Init transaction data buffer
-
     try {
-        accounts.getAccountTransactions(Cookies.get("username") || "")
-            .then(transactions => {
-                let balance = 0; // Initialize balance buffer
+        accounts.getAccountTransactions(Cookies.get("username") || "").then(transactions => {
+            let balance = 0; // Initialize balance buffer
 
-                let clearedHashes = new Map(); // Init cleared hashes map
+            let clearedHashes = new Map(); // Init cleared hashes map
 
-                transactionData = []; // Set to array
-
-                transactions.forEach((transaction) => {
-                    if (!clearedHashes.get(transaction.hash)) { // Check not already cleared
-                        if (transaction.sender === Cookies.get("address") || transaction.sender === Cookies.get("username")) { // Check is sender
-                            balance -= transaction.amount; // Subtract amount
-                        } else if (transaction.recipient === Cookies.get("address") || transaction.recipient === Cookies.get("username")) { // Check is recipient
-                            balance += transaction.amount; // Add amount
-                        }
-                    } else {
+            transactions.forEach(transaction => {
+                if (!clearedHashes.get(transaction.hash)) {
+                    // Check not already cleared
+                    if (
+                        transaction.sender === Cookies.get("address") ||
+                        transaction.sender === Cookies.get("username")
+                    ) {
+                        // Check is sender
+                        balance -= transaction.amount; // Subtract amount
+                    } else if (
+                        transaction.recipient === Cookies.get("address") ||
+                        transaction.recipient === Cookies.get("username")
+                    ) {
+                        // Check is recipient
                         balance += transaction.amount; // Add amount
                     }
+                } else {
+                    balance += transaction.amount; // Add amount
+                }
 
-                    console.log(balance);
+                setTransactionData([...transactionData, balance]); // Push transaction
 
-                    transactionData.push({ name: `Transaction ${transaction.hash}`, uv: parseFloat(balance.toString()), pv: 2400, amt: 2400 }); // Push transaction
+                clearedHashes.set(transaction.hash, true); // Set cleared
+            }); // Do for each tx
 
-                    clearedHashes.set(transaction.hash, true); // Set cleared
-                }); // Do for each tx
-
-                setHasLoaded(true); // Set has loaded
-            });
+            setHasLoaded(true); // Set has loaded
+        });
     } catch (exception) {
         setToastNotificationMessage({
             type: "error",
@@ -71,11 +108,13 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
         setHasLoaded(true); // Set has loaded
     }
 
-    if (window.innerWidth >= 1080) { // Check small window
+    if (window.innerWidth >= 1080) {
+        // Check small window
         extraMarginLeft = "16rem"; // Set extra margin
     }
 
-    if (!cookieUtility.isSignedIn()) { // Check not signed in
+    if (!cookieUtility.isSignedIn()) {
+        // Check not signed in
         return <Splash />; // Display splash screen
     }
 
@@ -124,21 +163,11 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                             subtitle={toastNotification.message}
                         />
                     )}
-                    {
-                        !hasLoaded ? (
-                            <InlineLoading style={{ color: "#ffffff" }} description="Loading data..." />
-                        ) : transactionData !== null ? (
-                            <ContainerDimensions>
-                                {({ width }) =>
-                                    <LineChart width={width} height={400 * (window.innerHeight / 941)} data={transactionData}>
-                                        <Line type="monotone" dataKey="uv" stroke="#ffffff" dot={false} />
-                                    </LineChart>
-                                }
-                            </ContainerDimensions>
-                        ) : (
-                                    null
-                                )
-                    }
+                    {!hasLoaded ? (
+                        <InlineLoading style={{ color: "#ffffff" }} description="Loading data..." />
+                    ) : transactionData !== null ? (
+                        <Line data={MakeGraphData(transactionData)} />
+                    ) : null}
                 </div>
             </div>
         </React.Fragment>
