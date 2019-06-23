@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import * as cookieUtility from "./cookieUtility";
-import { Header, HeaderName, HeaderGlobalBar, HeaderGlobalAction, HeaderPanel } from "carbon-components-react/lib/components/UIShell";
+import {
+    Header,
+    HeaderName,
+    HeaderGlobalBar,
+    HeaderGlobalAction,
+    HeaderPanel,
+} from "carbon-components-react/lib/components/UIShell";
 import AppSwitcher20 from "@carbon/icons-react/lib/app-switcher/20";
 import { GlobalStyle } from "./theme";
 import { RouteComponentProps, withRouter } from "react-router";
@@ -35,11 +41,23 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                 <HeaderPanel expanded={shouldShowSwitcherPanel} aria-label="App Switcher Panel">
                     <AppSwitcher selected="dashboard" />
                 </HeaderPanel>
-                <div style={{ position: "absolute", left: 0, width:  }}>
-                    <HeaderPanel expanded aria-label="App Switcher Panel">
+                <MediaQuery minWidth={1080}>
+                    <div
+                        style={{
+                            position: "absolute",
+                            left: 0,
+                            top: "3rem",
+                            width: "16rem",
+                            height: "100vh",
+                            borderLeft: "1px solid #3d3d3d",
+                            borderRight: "1px solid #3d3d3d",
+                            backgroundColor: "#171717",
+                            color: "#bebebe",
+                        }}
+                    >
                         <AppSwitcher selected="dashboard" />
-                    </HeaderPanel>
-                </div>
+                    </div>
+                </MediaQuery>
             </Header>
         </React.Fragment>
     );
