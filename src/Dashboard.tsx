@@ -67,9 +67,25 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
 
     try {
         accounts.getAccountTransactions(Cookies.get("username") || "").then(transactions => {
+            if (hasLoaded) { // Check has already loaded
+                return; // Return
+            }
+
             let balance = 0; // Initialize balance buffer
 
             let clearedHashes = new Map(); // Init cleared hashes map
+
+            if (transactions === null || transactions.length === 0) { // Check no transactions
+                setHasLoaded(true); // Set has loaded
+
+                return; // Return
+            }
+
+            setTransactionData([0]); // Set to empty array
+
+            for (let i = 0; i < 10; i++) {
+                
+            }
 
             transactions.forEach(transaction => {
                 if (!clearedHashes.get(transaction.hash)) {
@@ -165,7 +181,7 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                     )}
                     {!hasLoaded ? (
                         <InlineLoading style={{ color: "#ffffff" }} description="Loading data..." />
-                    ) : transactionData !== null ? (
+                    ) : (transactionData.length !== 0 && hasLoaded) ? (
                         <Line data={MakeGraphData(transactionData)} />
                     ) : null}
                 </div>
