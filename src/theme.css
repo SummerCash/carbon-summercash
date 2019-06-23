@@ -1,7 +1,11 @@
 /* BEGIN CARBON OVERRIDES */
 
 .bx--label {
-    color: #CECECECE;
+    color: #cececece;
+}
+
+.bx--inline-loading__text {
+    color: #ffffff;
 }
 
 /* END CARBON OVERRIDES */
