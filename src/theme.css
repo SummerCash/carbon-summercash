@@ -8,4 +8,9 @@
     color: #ffffff;
 }
 
+.blocky {
+    border-radius: 50%;
+    margin-left: 1.125em;
+}
+
 /* END CARBON OVERRIDES */
