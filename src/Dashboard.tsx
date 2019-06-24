@@ -25,30 +25,30 @@ const MakeGraphData = (balances: number[]): any => {
         labels: [] as string[],
         datasets: [
             {
-                label: "My First dataset",
+                label: "Account Balance",
                 fill: false,
                 lineTension: 0.1,
-                backgroundColor: "rgba(75,192,192,0.4)",
-                borderColor: "rgba(75,192,192,1)",
+                backgroundColor: "rgba(0,0,0,0.0)",
+                borderColor: "rgba(255,255,255,1)",
                 borderCapStyle: "butt",
                 borderDash: [],
                 borderDashOffset: 0.0,
                 borderJoinStyle: "miter",
-                pointBorderColor: "rgba(75,192,192,1)",
+                pointBorderColor: "rgba(255,255,255,0)",
                 pointBackgroundColor: "#fff",
                 pointBorderWidth: 1,
                 pointHoverRadius: 5,
-                pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                pointHoverBackgroundColor: "rgba(0,0,0,1)",
                 pointHoverBorderColor: "rgba(220,220,220,1)",
                 pointHoverBorderWidth: 2,
-                pointRadius: 1,
+                pointRadius: 0,
                 pointHitRadius: 10,
                 data: balances,
             },
         ],
     }; // Initialize template
 
-    balances.forEach((balance, i) => {
+    balances.forEach((_, i) => {
         template.labels.push(i.toString()); // Append iterator
     });
 
@@ -67,7 +67,8 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
 
     try {
         accounts.getAccountTransactions(Cookies.get("username") || "").then(transactions => {
-            if (hasLoaded) { // Check has already loaded
+            if (hasLoaded) {
+                // Check has already loaded
                 return; // Return
             }
 
@@ -75,42 +76,53 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
 
             let clearedHashes = new Map(); // Init cleared hashes map
 
-            if (transactions === null || transactions.length === 0) { // Check no transactions
-                setHasLoaded(true); // Set has loaded
+            let numTransactions = 10; // Number of transactions
 
-                return; // Return
-            }
+            let balances = [] as number[]; // Init balances buffer
 
-            setTransactionData([0]); // Set to empty array
+            if (transactions.length < 10) {
+                // Check not enough txs
+                balances.push(0); // Push zero balance
 
-            for (let i = 0; i < 10; i++) {
-                
-            }
-
-            transactions.forEach(transaction => {
-                if (!clearedHashes.get(transaction.hash)) {
-                    // Check not already cleared
-                    if (
-                        transaction.sender === Cookies.get("address") ||
-                        transaction.sender === Cookies.get("username")
-                    ) {
-                        // Check is sender
-                        balance -= transaction.amount; // Subtract amount
-                    } else if (
-                        transaction.recipient === Cookies.get("address") ||
-                        transaction.recipient === Cookies.get("username")
-                    ) {
-                        // Check is recipient
-                        balance += transaction.amount; // Add amount
-                    }
-                } else {
-                    balance += transaction.amount; // Add amount
+                if (transactions.length === 0) {
+                    balances.push(0); // Push zero balance
                 }
 
-                setTransactionData([...transactionData, balance]); // Push transaction
+                numTransactions = transactions.length; // Set num
+            }
 
-                clearedHashes.set(transaction.hash, true); // Set cleared
-            }); // Do for each tx
+            if (transactions.length > 0) {
+                // Check has txs
+                transactions.forEach((transaction, i) => {
+                    if (!clearedHashes.get(transaction.hash)) {
+                        // Check not already cleared
+                        if (
+                            transaction.sender === Cookies.get("address") ||
+                            transaction.sender === Cookies.get("username")
+                        ) {
+                            // Check is sender
+                            balance -= transaction.amount; // Subtract amount
+                        } else if (
+                            transaction.recipient === Cookies.get("address") ||
+                            transaction.recipient === Cookies.get("username")
+                        ) {
+                            // Check is recipient
+                            balance += transaction.amount; // Add amount
+                        }
+                    } else {
+                        balance += transaction.amount; // Add amount
+                    }
+
+                    if (i >= transactions.length - numTransactions - 1) {
+                        // Check is in range
+                        balances.push(balance); // Push balance
+                    }
+
+                    clearedHashes.set(transaction.hash, true); // Set cleared
+                }); // Iterate through txs
+            }
+
+            setTransactionData([...balances]); // Push transaction
 
             setHasLoaded(true); // Set has loaded
         });
@@ -171,7 +183,13 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                 </MediaQuery>
             </Header>
             <div style={{ marginTop: "3rem", marginLeft: extraMarginLeft, height: "100%", color: "#ffffff" }}>
-                <div style={{ marginTop: "6%", marginLeft: "4%", marginRight: "4%", height: "100%" }}>
+                <div
+                    style={{
+                        marginTop: "6%",
+                        marginLeft: "4%",
+                        marginRight: "4%",
+                    }}
+                >
                     {toastNotification.message !== "" && (
                         <InlineNotification
                             kind={toastNotification.type}
@@ -181,8 +199,57 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                     )}
                     {!hasLoaded ? (
                         <InlineLoading style={{ color: "#ffffff" }} description="Loading data..." />
-                    ) : (transactionData.length !== 0 && hasLoaded) ? (
-                        <Line data={MakeGraphData(transactionData)} />
+                    ) : transactionData.length !== 0 && hasLoaded ? (
+                        <Line
+                            data={MakeGraphData(transactionData)}
+                            options={{
+                                legend: { display: false },
+                                scales: {
+                                    xAxes: [
+                                        {
+                                            gridLines: {
+                                                display: false,
+                                            },
+                                            ticks: {
+                                                callback: (value, index, values) => {
+                                                    return null; // Hide tick labels
+                                                },
+                                            },
+                                        },
+                                    ],
+                                    yAxes: [
+                                        {
+                                            gridLines: {
+                                                display: false,
+                                            },
+                                            ticks: {
+                                                callback: (value, index, values) => {
+                                                    return null; // Hide tick labels
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                                tooltips: {
+                                    enabled: true,
+                                    callbacks: {
+                                        title: (tooltipItem, data) => {
+                                            return ""; // Hide tooltip header
+                                        },
+                                    },
+                                },
+                                elements: {
+                                    line: {
+                                        borderWidth: 2,
+                                    },
+                                },
+                                layout: {
+                                    padding: {
+                                        right: 20,
+                                    },
+                                },
+                            }}
+                        />
                     ) : null}
                 </div>
             </div>
