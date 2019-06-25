@@ -81,11 +81,16 @@ export const AuthForm: React.FunctionComponent<AuthFormProps> = props => {
 
                 try {
                     canCreateAccount = accounts.newAccount(username, password); // Create new account
-                    token = await accounts.issueToken(username, password); // Issue token
 
-                    const account = await accounts.queryAccount(username); // Query account
+                    while (token === undefined) { // Check token is undefined
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait one second...
 
-                    address = account.address; // Set address
+                        token = await accounts.issueToken(username, password); // Issue token
+
+                        const account = await accounts.queryAccount(username); // Query account
+
+                        address = account.address; // Set address
+                    }
                 } catch (exception) {
                     setToastNotificationMessage({
                         type: "error",

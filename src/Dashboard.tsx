@@ -29,7 +29,7 @@ const MakeGraphData = (balances: number[]): any => {
             {
                 label: "Account Balance",
                 fill: false,
-                lineTension: 0.1,
+                lineTension: 0.4,
                 backgroundColor: "rgba(0,0,0,0.0)",
                 borderColor: "rgba(255,255,255,1)",
                 borderCapStyle: "butt",
@@ -84,18 +84,18 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
 
             let balances = [] as number[]; // Init balances buffer
 
-            if (transactions.length < 10) {
+            if (transactions == null || transactions.length < 10) {
                 // Check not enough txs
                 balances.push(0); // Push zero balance
 
-                if (transactions.length === 0) {
+                if (transactions == null || transactions.length === 0) {
                     balances.push(0); // Push zero balance
+                } else {
+                    numTransactions = transactions.length; // Set num
                 }
-
-                numTransactions = transactions.length; // Set num
             }
 
-            if (transactions.length > 0) {
+            if (transactions !== null && transactions.length > 0) {
                 // Check has txs
                 transactions.forEach((transaction, i) => {
                     if (!clearedHashes.get(transaction.hash)) {
@@ -193,6 +193,7 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                         marginLeft: "4%",
                         marginRight: "4%",
                         height: (0.4 * window.innerHeight).toString() + "px",
+                        backgroundColor: "#BEBEBE"
                     }}
                 >
                     {toastNotification.message !== "" && (
@@ -213,57 +214,60 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                                         scale={12.5}
                                         className="blocky"
                                     />
-                                    <Line
-                                        data={MakeGraphData(transactionData)}
-                                        height={height / 4.5}
-                                        options={{
-                                            legend: { display: false },
-                                            scales: {
-                                                xAxes: [
-                                                    {
-                                                        gridLines: {
-                                                            display: false,
-                                                        },
-                                                        ticks: {
-                                                            callback: (value, index, values) => {
-                                                                return null; // Hide tick labels
+                                    <div style={{ height: "80%" }}>
+                                        <Line
+                                            data={MakeGraphData(transactionData)}
+                                            options={{
+                                                legend: { display: false },
+                                                scales: {
+                                                    xAxes: [
+                                                        {
+                                                            gridLines: {
+                                                                display: false,
+                                                            },
+                                                            ticks: {
+                                                                callback: (value, index, values) => {
+                                                                    return null; // Hide tick labels
+                                                                },
                                                             },
                                                         },
-                                                    },
-                                                ],
-                                                yAxes: [
-                                                    {
-                                                        gridLines: {
-                                                            display: false,
-                                                        },
-                                                        ticks: {
-                                                            callback: (value, index, values) => {
-                                                                return null; // Hide tick labels
+                                                    ],
+                                                    yAxes: [
+                                                        {
+                                                            gridLines: {
+                                                                display: false,
+                                                            },
+                                                            ticks: {
+                                                                callback: (value, index, values) => {
+                                                                    return null; // Hide tick labels
+                                                                },
                                                             },
                                                         },
+                                                    ],
+                                                },
+                                                tooltips: {
+                                                    enabled: true,
+                                                    callbacks: {
+                                                        title: (tooltipItem, data) => {
+                                                            return ""; // Hide tooltip header
+                                                        },
                                                     },
-                                                ],
-                                            },
-                                            tooltips: {
-                                                enabled: true,
-                                                callbacks: {
-                                                    title: (tooltipItem, data) => {
-                                                        return ""; // Hide tooltip header
+                                                },
+                                                elements: {
+                                                    line: {
+                                                        borderWidth: 1.5,
                                                     },
                                                 },
-                                            },
-                                            elements: {
-                                                line: {
-                                                    borderWidth: 1.5,
+                                                layout: {
+                                                    padding: {
+                                                        right: 20,
+                                                    },
                                                 },
-                                            },
-                                            layout: {
-                                                padding: {
-                                                    right: 20,
-                                                },
-                                            },
-                                        }}
-                                    />
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                            }}
+                                        />
+                                    </div>
                                 </React.Fragment>
                             )}
                         </ContainerDimensions>
