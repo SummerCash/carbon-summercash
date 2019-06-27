@@ -68,30 +68,46 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
     const [hasLoaded, setHasLoaded] = useState(false); // Create has loaded state
     const [transactionData, setTransactionData] = useState([] as number[]); // Create tx data state
     const [balance, setBalance] = useState(""); // Create balance state buffer
+    const [hasGottenWebSocket, setHasGottenWebSocket] = useState(false); // Create has gotten WebSocket state buffer
+    const [graphData, setGraphData] = useState({}); // Create graph data state var
 
     const accounts = new Accounts(`${apiRoot}/api`); // Init API instance
 
     const address = Cookies.get("address"); // Get address
     const username = Cookies.get("username"); // Get username
 
-    const socket = new WebSocket(`${websocketRoot}/ws/${username}`); // Init account WebSocket
+    if (!hasGottenWebSocket) {
+        // Check must create socket
+        const socket = new WebSocket(`${websocketRoot}/ws/${username}`); // Init account WebSocket
 
-    socket.addEventListener("open", e => {
-        alert("test");
-        setToastNotificationMessage({
-            type: "success",
-            title: "Success",
-            message: "WebSocket connection established successfully.",
-        }); // Show websocket notification
-    }); // Set conn open listener
+        socket.addEventListener("open", e => {
+            setToastNotificationMessage({
+                type: "success",
+                title: "Success",
+                message: "WebSocket connection established successfully.",
+            }); // Show websocket notification
+        }); // Set conn open listener
 
-    socket.addEventListener("error", e => {
-        setToastNotificationMessage({
-            type: "error",
-            title: "Error",
-            message: "A WebSocket connection could not be established successfully.",
+        socket.addEventListener("error", e => {
+            setToastNotificationMessage({
+                type: "error",
+                title: "Error",
+                message: "A WebSocket connection could not be established successfully.",
+            });
         });
-    });
+
+        socket.addEventListener("message", e => {
+            const split = e.data.split(":"); // Split by :
+
+            const balance = split[0]; // Get balance
+
+            setBalance(balance); // Set balance
+            setTransactionData([...transactionData, parseFloat(balance)]); // Set tx data
+            setGraphData(Object.assign({}, MakeGraphData(transactionData))); // Make graph data
+        });
+
+        setHasGottenWebSocket(true); // Set has gotten socket
+    }
 
     accounts.getAccountBalance(username || "").then(balance => setBalance(balance.toLocaleString())); // Set balance
 
@@ -149,6 +165,7 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
             }
 
             setTransactionData([...balances]); // Push transaction
+            setGraphData(MakeGraphData(transactionData)); // Make graph data
 
             setHasLoaded(true); // Set has loaded
         });
@@ -248,7 +265,7 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                                     </div>
                                     <div style={{ height: "77.5%" }}>
                                         <Line
-                                            data={MakeGraphData(transactionData)}
+                                            data={graphData}
                                             options={{
                                                 legend: { display: false },
                                                 scales: {
