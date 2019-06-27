@@ -9,10 +9,10 @@ import {
 } from "carbon-components-react/lib/components/UIShell";
 import { InlineNotification, InlineLoading } from "carbon-components-react";
 import AppSwitcher20 from "@carbon/icons-react/lib/app-switcher/20";
-import { GlobalStyle } from "./theme";
+import { GlobalStyle, LargeHeader, MediumHeader, SmallHeader } from "./theme";
 import { RouteComponentProps, withRouter } from "react-router";
 import MediaQuery from "react-responsive";
-import { apiRoot } from "./config";
+import { apiRoot, websocketRoot } from "./config";
 import { Accounts } from "@summercash/summercash-wallet-ts";
 import * as Cookies from "es-cookie";
 import { Line } from "react-chartjs-2";
@@ -54,6 +54,11 @@ const MakeGraphData = (balances: number[]): any => {
         template.labels.push(i.toString()); // Append iterator
     });
 
+    if (balances.length === 2) {
+        // Check only two points
+        template.datasets[0].lineTension = 0; // No line tension
+    }
+
     return template; // Return edited template
 };
 
@@ -62,15 +67,38 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
     const [toastNotification, setToastNotificationMessage] = useState({ type: "", title: "", message: "" }); // Notification
     const [hasLoaded, setHasLoaded] = useState(false); // Create has loaded state
     const [transactionData, setTransactionData] = useState([] as number[]); // Create tx data state
-
-    const address = Cookies.get("address"); // Get address
+    const [balance, setBalance] = useState(""); // Create balance state buffer
 
     const accounts = new Accounts(`${apiRoot}/api`); // Init API instance
+
+    const address = Cookies.get("address"); // Get address
+    const username = Cookies.get("username"); // Get username
+
+    const socket = new WebSocket(`${websocketRoot}/ws/${username}`); // Init account WebSocket
+
+    socket.addEventListener("open", e => {
+        alert("test");
+        setToastNotificationMessage({
+            type: "success",
+            title: "Success",
+            message: "WebSocket connection established successfully.",
+        }); // Show websocket notification
+    }); // Set conn open listener
+
+    socket.addEventListener("error", e => {
+        setToastNotificationMessage({
+            type: "error",
+            title: "Error",
+            message: "A WebSocket connection could not be established successfully.",
+        });
+    });
+
+    accounts.getAccountBalance(username || "").then(balance => setBalance(balance.toLocaleString())); // Set balance
 
     let extraMarginLeft = "auto"; // Init extra margin buffer
 
     try {
-        accounts.getAccountTransactions(Cookies.get("username") || "").then(transactions => {
+        accounts.getAccountTransactions(username || "").then(transactions => {
             if (hasLoaded) {
                 // Check has already loaded
                 return; // Return
@@ -100,16 +128,10 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                 transactions.forEach((transaction, i) => {
                     if (!clearedHashes.get(transaction.hash)) {
                         // Check not already cleared
-                        if (
-                            transaction.sender === Cookies.get("address") ||
-                            transaction.sender === Cookies.get("username")
-                        ) {
+                        if (transaction.sender === address || transaction.sender === username) {
                             // Check is sender
                             balance -= transaction.amount; // Subtract amount
-                        } else if (
-                            transaction.recipient === Cookies.get("address") ||
-                            transaction.recipient === Cookies.get("username")
-                        ) {
+                        } else if (transaction.recipient === address || transaction.recipient === username) {
                             // Check is recipient
                             balance += transaction.amount; // Add amount
                         }
@@ -193,7 +215,6 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                         marginLeft: "4%",
                         marginRight: "4%",
                         height: (0.4 * window.innerHeight).toString() + "px",
-                        backgroundColor: "#BEBEBE"
                     }}
                 >
                     {toastNotification.message !== "" && (
@@ -209,12 +230,23 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                         <ContainerDimensions>
                             {({ height }) => (
                                 <React.Fragment>
-                                    <Blockies
-                                        seed={address}
-                                        scale={12.5}
-                                        className="blocky"
-                                    />
-                                    <div style={{ height: "80%" }}>
+                                    <div style={{ margin: "0 auto" }}>
+                                        <MediaQuery minWidth={430}>
+                                            <div style={{ float: "left" }}>
+                                                <Blockies seed={address} scale={12.5} className="blocky" />
+                                            </div>
+                                        </MediaQuery>
+                                        <div style={{ float: "left", marginLeft: "1.125em" }}>
+                                            <LargeHeader>{username}</LargeHeader>
+                                            <MediaQuery minWidth={539}>
+                                                <MediumHeader marginTop="1%" marginBottom="1%">
+                                                    {address}
+                                                </MediumHeader>
+                                            </MediaQuery>
+                                            <SmallHeader>{balance} SMC</SmallHeader>
+                                        </div>
+                                    </div>
+                                    <div style={{ height: "77.5%" }}>
                                         <Line
                                             data={MakeGraphData(transactionData)}
                                             options={{

@@ -64,6 +64,26 @@ export const MediumHeader = styled.h2<{
 `;
 
 // eslint-disable-next-line
+export const SmallHeader = styled.h3<{
+    margin?: string;
+    marginTop?: string;
+    marginBottom?: string;
+    marginLeft?: string;
+    marginRight?: string;
+}>`
+    color: ${props => props.color};
+    font-family: "IBM Plex Sans", "Helvetica Neue";
+    font-weight: 300;
+    font-size: 1.25rem;
+
+    margin: ${props => props.margin};
+    margin-top: ${props => props.marginTop};
+    margin-bottom: ${props => props.marginBottom};
+    margin-left: ${props => props.marginLeft};
+    margin-right: ${props => props.marginRight};
+`;
+
+// eslint-disable-next-line
 export const GlobalStyle = createGlobalStyle`
 body > #root > div {
     height: 100vh;
