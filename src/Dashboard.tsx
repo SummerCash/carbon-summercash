@@ -16,7 +16,6 @@ import { apiRoot, websocketRoot } from "./config";
 import { Accounts } from "@summercash/summercash-wallet-ts";
 import * as Cookies from "es-cookie";
 import { Line } from "react-chartjs-2";
-import ContainerDimensions from "react-container-dimensions";
 import Blockies from "react-blockies";
 
 import Splash from "./Splash";
@@ -244,82 +243,78 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                     {!hasLoaded ? (
                         <InlineLoading style={{ color: "#ffffff" }} description="Loading data..." />
                     ) : transactionData.length !== 0 && hasLoaded ? (
-                        <ContainerDimensions>
-                            {({ height }) => (
-                                <React.Fragment>
-                                    <div style={{ margin: "0 auto" }}>
-                                        <MediaQuery minWidth={430}>
-                                            <div style={{ float: "left" }}>
-                                                <Blockies seed={address} scale={12.5} className="blocky" />
-                                            </div>
-                                        </MediaQuery>
-                                        <div style={{ float: "left", marginLeft: "1.125em" }}>
-                                            <LargeHeader>{username}</LargeHeader>
-                                            <MediaQuery minWidth={539}>
-                                                <MediumHeader marginTop="1%" marginBottom="1%">
-                                                    {address}
-                                                </MediumHeader>
-                                            </MediaQuery>
-                                            <SmallHeader>{balance} SMC</SmallHeader>
-                                        </div>
+                        <React.Fragment>
+                            <div style={{ margin: "0 auto" }}>
+                                <MediaQuery minWidth={430}>
+                                    <div style={{ float: "left" }}>
+                                        <Blockies seed={address} scale={12.5} className="blocky" />
                                     </div>
-                                    <div style={{ height: "77.5%" }}>
-                                        <Line
-                                            data={graphData}
-                                            options={{
-                                                legend: { display: false },
-                                                scales: {
-                                                    xAxes: [
-                                                        {
-                                                            gridLines: {
-                                                                display: false,
-                                                            },
-                                                            ticks: {
-                                                                callback: (value, index, values) => {
-                                                                    return null; // Hide tick labels
-                                                                },
-                                                            },
-                                                        },
-                                                    ],
-                                                    yAxes: [
-                                                        {
-                                                            gridLines: {
-                                                                display: false,
-                                                            },
-                                                            ticks: {
-                                                                callback: (value, index, values) => {
-                                                                    return null; // Hide tick labels
-                                                                },
-                                                            },
-                                                        },
-                                                    ],
-                                                },
-                                                tooltips: {
-                                                    enabled: true,
-                                                    callbacks: {
-                                                        title: (tooltipItem, data) => {
-                                                            return ""; // Hide tooltip header
+                                </MediaQuery>
+                                <div style={{ float: "left", marginLeft: "1.125em" }}>
+                                    <LargeHeader>{username}</LargeHeader>
+                                    <MediaQuery minWidth={539}>
+                                        <MediumHeader marginTop="1%" marginBottom="1%">
+                                            {address}
+                                        </MediumHeader>
+                                    </MediaQuery>
+                                    <SmallHeader>{balance} SMC</SmallHeader>
+                                </div>
+                            </div>
+                            <div style={{ height: "77.5%" }}>
+                                <Line
+                                    data={graphData}
+                                    options={{
+                                        legend: { display: false },
+                                        scales: {
+                                            xAxes: [
+                                                {
+                                                    gridLines: {
+                                                        display: false,
+                                                    },
+                                                    ticks: {
+                                                        callback: (value, index, values) => {
+                                                            return null; // Hide tick labels
                                                         },
                                                     },
                                                 },
-                                                elements: {
-                                                    line: {
-                                                        borderWidth: 1.5,
+                                            ],
+                                            yAxes: [
+                                                {
+                                                    gridLines: {
+                                                        display: false,
+                                                    },
+                                                    ticks: {
+                                                        callback: (value, index, values) => {
+                                                            return null; // Hide tick labels
+                                                        },
                                                     },
                                                 },
-                                                layout: {
-                                                    padding: {
-                                                        right: 20,
-                                                    },
+                                            ],
+                                        },
+                                        tooltips: {
+                                            enabled: true,
+                                            callbacks: {
+                                                title: (tooltipItem, data) => {
+                                                    return ""; // Hide tooltip header
                                                 },
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                            }}
-                                        />
-                                    </div>
-                                </React.Fragment>
-                            )}
-                        </ContainerDimensions>
+                                            },
+                                        },
+                                        elements: {
+                                            line: {
+                                                borderWidth: 1.5,
+                                            },
+                                        },
+                                        layout: {
+                                            padding: {
+                                                right: 20,
+                                            },
+                                        },
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                    }}
+                                />
+                            </div>
+                        </React.Fragment>
                     ) : null}
                 </div>
             </div>

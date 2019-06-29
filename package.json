@@ -19,7 +19,6 @@
         "react": "^16.8.6",
         "react-blockies": "^1.4.1",
         "react-chartjs-2": "^2.7.6",
-        "react-container-dimensions": "^1.4.1",
         "react-dom": "^16.8.6",
         "react-responsive": "^7.0.0",
         "react-router-dom": "^5.0.1",
