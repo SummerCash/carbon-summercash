@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as cookieUtility from "./cookieUtility";
 import {
     Header,
@@ -69,6 +69,7 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
     const [balance, setBalance] = useState(""); // Create balance state buffer
     const [hasGottenWebSocket, setHasGottenWebSocket] = useState(false); // Create has gotten WebSocket state buffer
     const [graphData, setGraphData] = useState({}); // Create graph data state var
+    const [socket, setSocket] = useState(new WebSocket(`${websocketRoot}/ws/${Cookies.get("username")}`)); // Create socket state buffer
 
     const accounts = new Accounts(`${apiRoot}/api`); // Init API instance
 
@@ -77,7 +78,7 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
 
     if (!hasGottenWebSocket) {
         // Check must create socket
-        const socket = new WebSocket(`${websocketRoot}/ws/${username}`); // Init account WebSocket
+        setSocket(new WebSocket(`${websocketRoot}/ws/${Cookies.get("username")}`)); // Initialize socket
 
         socket.addEventListener("open", e => {
             setToastNotificationMessage({
@@ -100,13 +101,19 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
 
             const balance = split[0]; // Get balance
 
+            setGraphData(MakeGraphData([...transactionData, parseFloat(balance)])); // Make graph data
             setBalance(balance); // Set balance
             setTransactionData([...transactionData, parseFloat(balance)]); // Set tx data
-            setGraphData(Object.assign({}, MakeGraphData(transactionData))); // Make graph data
         });
 
         setHasGottenWebSocket(true); // Set has gotten socket
     }
+
+    useEffect(() => {
+        return function cleanup() {
+            socket.close(); // Close account WebSocket
+        };
+    }); // Clean up
 
     accounts.getAccountBalance(username || "").then(balance => setBalance(balance.toLocaleString())); // Set balance
 
