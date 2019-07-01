@@ -6,6 +6,7 @@ import {
     HeaderGlobalBar,
     HeaderGlobalAction,
     HeaderPanel,
+    DataTable,
 } from "carbon-components-react/lib/components/UIShell";
 import { InlineNotification, InlineLoading } from "carbon-components-react";
 import AppSwitcher20 from "@carbon/icons-react/lib/app-switcher/20";
@@ -321,6 +322,35 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                                     }}
                                 />
                             </div>
+                            <DataTable
+                                rows={}
+                                render={({ rows, headers, getHeaderProps }) => (
+                                    <DataTable.TableContainer title="DataTable">
+                                        <DataTable.Table>
+                                            <DataTable.TableHead>
+                                                <DataTable.TableRow>
+                                                    {headers.map(header => (
+                                                        <DataTable.TableHeader {...getHeaderProps({ header })}>
+                                                            {header.Header}
+                                                        </DataTable.TableHeader>
+                                                    ))}
+                                                </DataTable.TableRow>
+                                            </DataTable.TableHead>
+                                            <DataTable.TableBody>
+                                                {rows.map(row => (
+                                                    <DataTable.TableRow key={row.id}>
+                                                        {row.cells.map(cell => (
+                                                            <DataTable.TableCell key={cell.id}>
+                                                                {cell.value}
+                                                            </DataTable.TableCell>
+                                                        ))}
+                                                    </DataTable.TableRow>
+                                                ))}
+                                            </DataTable.TableBody>
+                                        </DataTable.Table>
+                                    </DataTable.TableContainer>
+                                )}
+                            />
                         </React.Fragment>
                     ) : null}
                 </div>
