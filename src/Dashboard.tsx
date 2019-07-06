@@ -18,6 +18,7 @@ import { Accounts } from "@summercash/summercash-wallet-ts";
 import * as Cookies from "es-cookie";
 import { Line } from "react-chartjs-2";
 import Blockies from "react-blockies";
+import useWebSocket from "react-use-websocket";
 
 import Splash from "./Splash";
 import AppSwitcher from "./AppSwitcher";
@@ -70,51 +71,62 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
     const [balance, setBalance] = useState(""); // Create balance state buffer
     const [hasGottenWebSocket, setHasGottenWebSocket] = useState(false); // Create has gotten WebSocket state buffer
     const [graphData, setGraphData] = useState({}); // Create graph data state var
-    const [socket, setSocket] = useState(new WebSocket(`${websocketRoot}/ws/${Cookies.get("username")}`)); // Create socket state buffer
+    const [sendMessage, lastMessage, readyState] = useWebSocket(`${websocketRoot}/ws/${Cookies.get("username")}`); // Call WS hook
 
     const accounts = new Accounts(`${apiRoot}/api`); // Init API instance
 
     const address = Cookies.get("address"); // Get address
     const username = Cookies.get("username"); // Get username
 
-    if (!hasGottenWebSocket) {
-        // Check must create socket
-        setSocket(new WebSocket(`${websocketRoot}/ws/${Cookies.get("username")}`)); // Initialize socket
-
-        socket.addEventListener("open", e => {
-            setToastNotificationMessage({
-                type: "success",
-                title: "Success",
-                message: "WebSocket connection established successfully.",
-            }); // Show websocket notification
-        }); // Set conn open listener
-
-        socket.addEventListener("error", e => {
-            setToastNotificationMessage({
-                type: "error",
-                title: "Error",
-                message: "A WebSocket connection could not be established successfully.",
-            });
-        });
-
-        socket.addEventListener("message", e => {
-            const split = e.data.split(":"); // Split by :
+    useEffect(() => {
+        if (lastMessage) {
+            const split = lastMessage.data.split(":"); // Split by :
 
             const balance = split[0]; // Get balance
 
             setGraphData(MakeGraphData([...transactionData, parseFloat(balance)])); // Make graph data
             setBalance(balance); // Set balance
             setTransactionData([...transactionData, parseFloat(balance)]); // Set tx data
-        });
+        }
+    }, [lastMessage, transactionData]);
 
-        setHasGottenWebSocket(true); // Set has gotten socket
-    }
+    // if (!hasGottenWebSocket) {
+    //     // Check must create socket
 
-    useEffect(() => {
-        return function cleanup() {
-            socket.close(); // Close account WebSocket
-        };
-    }); // Clean up
+    //     // socket.addEventListener("open", e => {
+    //     //     setToastNotificationMessage({
+    //     //         type: "success",
+    //     //         title: "Success",
+    //     //         message: "WebSocket connection established successfully.",
+    //     //     }); // Show websocket notification
+    //     // }); // Set conn open listener
+
+    //     // socket.addEventListener("error", e => {
+    //     //     setToastNotificationMessage({
+    //     //         type: "error",
+    //     //         title: "Error",
+    //     //         message: "A WebSocket connection could not be established successfully.",
+    //     //     });
+    //     // });
+
+    //     // socket.addEventListener("message", e => {
+    //     //     const split = e.data.split(":"); // Split by :
+
+    //     //     const balance = split[0]; // Get balance
+
+    //     //     setGraphData(MakeGraphData([...transactionData, parseFloat(balance)])); // Make graph data
+    //     //     setBalance(balance); // Set balance
+    //     //     setTransactionData([...transactionData, parseFloat(balance)]); // Set tx data
+    //     // });
+
+    //     setHasGottenWebSocket(true); // Set has gotten socket
+    // }
+
+    // useEffect(() => {
+    //     return function cleanup() {
+    //         socket.close(); // Close account WebSocket
+    //     };
+    // }); // Clean up
 
     accounts.getAccountBalance(username || "").then(balance => setBalance(balance.toLocaleString())); // Set balance
 
@@ -173,7 +185,7 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
 
             setTransactionData([...balances]); // Push transaction
             setGraphData(MakeGraphData(transactionData)); // Make graph data
-
+            
             setHasLoaded(true); // Set has loaded
         });
     } catch (exception) {
@@ -322,7 +334,7 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                                     }}
                                 />
                             </div>
-                            <DataTable
+                            {/* <DataTable
                                 rows={}
                                 render={({ rows, headers, getHeaderProps }) => (
                                     <DataTable.TableContainer title="DataTable">
@@ -350,7 +362,7 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                                         </DataTable.Table>
                                     </DataTable.TableContainer>
                                 )}
-                            />
+                            /> */}
                         </React.Fragment>
                     ) : null}
                 </div>
