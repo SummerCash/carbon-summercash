@@ -183,9 +183,11 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                 }); // Iterate through txs
             }
 
+            const graphData = MakeGraphData([...balances]); // Make graph data
+
             setTransactionData([...balances]); // Push transaction
-            setGraphData(MakeGraphData(transactionData)); // Make graph data
-            
+            setGraphData(graphData); // Make graph data
+
             setHasLoaded(true); // Set has loaded
         });
     } catch (exception) {
@@ -262,7 +264,12 @@ export const Dashboard: React.FunctionComponent<RouteComponentProps> = props => 
                     )}
                     {!hasLoaded ? (
                         <InlineLoading style={{ color: "#ffffff" }} description="Loading data..." />
-                    ) : transactionData.length !== 0 && hasLoaded ? (
+                    ) : transactionData.length !== 0 &&
+                      hasLoaded &&
+                      graphData &&
+                      graphData !== undefined &&
+                      graphData !== null &&
+                      graphData["datasets"].length !== 0 ? (
                         <React.Fragment>
                             <div style={{ margin: "0 auto" }}>
                                 <MediaQuery minWidth={430}>
